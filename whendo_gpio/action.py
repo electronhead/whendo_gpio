@@ -7,6 +7,7 @@ except:
     import Mock.GPIO as GPIO
 
 import logging
+import math
 from whendo.core.action import Action
 
 logger = logging.getLogger(__name__)
@@ -14,14 +15,14 @@ logger = logging.getLogger(__name__)
 
 class SetPin(Action):
     """
-    For the specified pin, sets to HIGH if on=True, to LOW if on=False.
+    Sets the pin state to HIGH if <on> is True, to LOW otherwise.
     """
 
     pin: int
-    on: bool
+    on: bool # accepts, 0, 1, False, True
 
     def description(self):
-        return f"This action sets pin ({self.pin}) output to ({'GPIO.HIGH' if self.on else 'GPIO.LOW'})."
+        return f"This action sets pin ({self.pin}) state to ({'GPIO.HIGH' if self.on else 'GPIO.LOW'})."
 
     def execute(self, tag: str = None, scheduler_info: dict = None):
         GPIO.setmode(GPIO.BCM)
@@ -31,23 +32,42 @@ class SetPin(Action):
         return self.on
 
 
-class TogglePin(Action):
+class PinState(Action):
     """
-    For the specified pin, sets to HIGH if LOW, to LOW if HIGH.
+    Returns True if the pin state is HIGH, 0 if the pin state is LOW.
     """
 
     pin: int
+    pin_state: str = "pin_state"  # for Action deserialization
 
     def description(self):
-        return f"This action sets pin ({self.pin}) output to GPIO.HIGH if GPIO.input is GPIO.LOW else GPIO.LOW."
+        return f"This action returns True if the pin state is HIGH, False if LOW."
 
     def execute(self, tag: str = None, scheduler_info: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
-        result = not GPIO.input(self.pin)
-        GPIO.output(self.pin, result)
-        return result
+        return GPIO.input(self.pin) == GPIO.HIGH
+
+
+class TogglePin(Action):
+    """
+    Sets the pin state to HIGH if LOW, to LOW if HIGH. Returns True
+    if final state is HIGH, False if final state is LOW.
+    """
+
+    pin: int
+
+    def description(self):
+        return f"This action sets pin ({self.pin}) state to GPIO.HIGH if LOW, to GPIO.LOW if HIGH. Returns True if final state is HIGH, False if final state is LOW."
+
+    def execute(self, tag: str = None, scheduler_info: dict = None):
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        GPIO.setup(self.pin, GPIO.OUT)
+        state = not GPIO.input(self.pin)
+        GPIO.output(self.pin, state)
+        return state == GPIO.HIGH
 
 
 class CleanupPins(Action):
