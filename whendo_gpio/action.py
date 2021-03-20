@@ -24,7 +24,7 @@ class SetPin(Action):
     def description(self):
         return f"This action sets pin ({self.pin}) state to ({'GPIO.HIGH' if self.on else 'GPIO.LOW'})."
 
-    def execute(self, tag: str = None, scheduler_info: dict = None):
+    def execute(self, data: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
@@ -43,7 +43,7 @@ class PinState(Action):
     def description(self):
         return f"This action returns True if the pin state is HIGH, False if LOW."
 
-    def execute(self, tag: str = None, scheduler_info: dict = None):
+    def execute(self, data: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
@@ -61,7 +61,7 @@ class TogglePin(Action):
     def description(self):
         return f"This action sets pin ({self.pin}) state to GPIO.HIGH if LOW, to GPIO.LOW if HIGH. Returns True if final state is HIGH, False if final state is LOW."
 
-    def execute(self, tag: str = None, scheduler_info: dict = None):
+    def execute(self, data: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
@@ -80,6 +80,6 @@ class CleanupPins(Action):
     def description(self):
         return f"This action executes GPIO.cleanup."
 
-    def execute(self, tag: str = None, scheduler_info: dict = None):
+    def execute(self, data: dict = None):
         GPIO.cleanup()
         return False
