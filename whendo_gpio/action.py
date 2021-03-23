@@ -16,20 +16,26 @@ logger = logging.getLogger(__name__)
 class SetPin(Action):
     """
     Sets the pin state to HIGH if <on> is True, to LOW otherwise.
+
+    Potentially verriden by execute argument, <data>.
     """
 
     pin: int
-    on: bool # accepts, 0, 1, False, True
+    on: bool  # accepts, 0, 1, False, True
 
     def description(self):
         return f"This action sets pin ({self.pin}) state to ({'GPIO.HIGH' if self.on else 'GPIO.LOW'})."
 
-    def execute(self, data: dict = None):
+    def execute(self, tag: str = None, data: dict = None):
+        on = self.on
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
-        GPIO.output(self.pin, GPIO.HIGH if self.on else GPIO.LOW)
-        return self.on
+        GPIO.output(self.pin, GPIO.HIGH if on else GPIO.LOW)
+        result = {"result": on, "action_info": self.info()}
+        if data:
+            result["data"] = data
+        return result
 
 
 class PinState(Action):
@@ -37,17 +43,23 @@ class PinState(Action):
     Returns True if the pin state is HIGH, 0 if the pin state is LOW.
     """
 
-    pin: int
     pin_state: str = "pin_state"  # for Action deserialization
+    pin: int
 
     def description(self):
         return f"This action returns True if the pin state is HIGH, False if LOW."
 
-    def execute(self, data: dict = None):
+    def execute(self, tag: str = None, data: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
-        return GPIO.input(self.pin) == GPIO.HIGH
+        result = {
+            "result": GPIO.input(self.pin) == GPIO.HIGH,
+            "action_info": self.info(),
+        }
+        if data:
+            result["data"] = data
+        return result
 
 
 class TogglePin(Action):
@@ -56,18 +68,22 @@ class TogglePin(Action):
     if final state is HIGH, False if final state is LOW.
     """
 
+    toggle_pin: str = "toggle_pin"  # for Action deserialization
     pin: int
 
     def description(self):
         return f"This action sets pin ({self.pin}) state to GPIO.HIGH if LOW, to GPIO.LOW if HIGH. Returns True if final state is HIGH, False if final state is LOW."
 
-    def execute(self, data: dict = None):
+    def execute(self, tag: str = None, data: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
         state = not GPIO.input(self.pin)
         GPIO.output(self.pin, state)
-        return state == GPIO.HIGH
+        result = {"result": state == GPIO.HIGH, "action_info": self.info()}
+        if data:
+            result["data"] = data
+        return result
 
 
 class CleanupPins(Action):
@@ -80,6 +96,9 @@ class CleanupPins(Action):
     def description(self):
         return f"This action executes GPIO.cleanup."
 
-    def execute(self, data: dict = None):
+    def execute(self, tag: str = None, data: dict = None):
         GPIO.cleanup()
-        return False
+        result = {"result": True, "action_info": self.info()}
+        if data:
+            result["data"] = data
+        return result
