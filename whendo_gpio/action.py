@@ -7,7 +7,6 @@ except:
     import Mock.GPIO as GPIO
 
 import logging
-import math
 from whendo.core.action import Action
 
 logger = logging.getLogger(__name__)
@@ -52,7 +51,7 @@ class PinState(Action):
     def execute(self, tag: str = None, data: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        GPIO.setup(self.pin, GPIO.OUT)
+        GPIO.setup(self.pin, GPIO.IN)
         result = {
             "result": GPIO.input(self.pin) == GPIO.HIGH,
             "action_info": self.info(),
