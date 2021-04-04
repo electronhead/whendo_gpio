@@ -15,8 +15,6 @@ logger = logging.getLogger(__name__)
 class SetPin(Action):
     """
     Sets the pin state to HIGH if <on> is True, to LOW otherwise.
-
-    Potentially verriden by execute argument, <data>.
     """
 
     pin: int
@@ -31,10 +29,7 @@ class SetPin(Action):
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
         GPIO.output(self.pin, GPIO.HIGH if on else GPIO.LOW)
-        result = {"result": on, "action_info": self.info()}
-        if data:
-            result["data"] = data
-        return result
+        return self.action_result(result=on, data=data, extra=self.info())
 
 
 class PinState(Action):
@@ -52,13 +47,7 @@ class PinState(Action):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.IN)
-        result = {
-            "result": GPIO.input(self.pin) == GPIO.HIGH,
-            "action_info": self.info(),
-        }
-        if data:
-            result["data"] = data
-        return result
+        return self.action_result(result=GPIO.input(self.pin) == GPIO.HIGH, data=data, extra=self.info())
 
 
 class TogglePin(Action):
@@ -79,10 +68,7 @@ class TogglePin(Action):
         GPIO.setup(self.pin, GPIO.OUT)
         state = not GPIO.input(self.pin)
         GPIO.output(self.pin, state)
-        result = {"result": state == GPIO.HIGH, "action_info": self.info()}
-        if data:
-            result["data"] = data
-        return result
+        return self.action_result(result=state == GPIO.HIGH, data=data, extra=self.info())
 
 
 class CleanupPins(Action):
@@ -97,7 +83,4 @@ class CleanupPins(Action):
 
     def execute(self, tag: str = None, data: dict = None):
         GPIO.cleanup()
-        result = {"result": True, "action_info": self.info()}
-        if data:
-            result["data"] = data
-        return result
+        return self.action_result(result=True, data=data, extra=self.info())
