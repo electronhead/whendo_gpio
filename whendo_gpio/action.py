@@ -29,7 +29,7 @@ class SetPin(Action):
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.OUT)
         GPIO.output(self.pin, GPIO.HIGH if on else GPIO.LOW)
-        return self.action_result(result=on, data=data, extra=self.info())
+        return self.action_result(result=on, data=data)
 
 
 class PinState(Action):
@@ -47,7 +47,7 @@ class PinState(Action):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.IN)
-        return self.action_result(result=GPIO.input(self.pin) == GPIO.HIGH, data=data, extra=self.info())
+        return self.action_result(result=GPIO.input(self.pin) == GPIO.HIGH, data=data)
 
 
 class TogglePin(Action):
@@ -68,7 +68,7 @@ class TogglePin(Action):
         GPIO.setup(self.pin, GPIO.OUT)
         state = not GPIO.input(self.pin)
         GPIO.output(self.pin, state)
-        return self.action_result(result=state == GPIO.HIGH, data=data, extra=self.info())
+        return self.action_result(result=state == GPIO.HIGH, data=data)
 
 
 class CleanupPins(Action):
@@ -83,4 +83,4 @@ class CleanupPins(Action):
 
     def execute(self, tag: str = None, data: dict = None):
         GPIO.cleanup()
-        return self.action_result(result=True, data=data, extra=self.info())
+        return self.action_result(result=True, data=data)
