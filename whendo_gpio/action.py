@@ -46,7 +46,7 @@ class PinState(Action):
     def execute(self, tag: str = None, data: dict = None):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        GPIO.setup(self.pin, GPIO.IN)
+        # GPIO.setup(self.pin, GPIO.IN)
         return self.action_result(result=GPIO.input(self.pin) == GPIO.HIGH, data=data)
 
 

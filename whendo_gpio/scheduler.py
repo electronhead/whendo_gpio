@@ -24,9 +24,11 @@ class PinScheduler(ThresholdScheduler):
     def schedule(self, scheduler_name: str, executor: Executor):
         callable = self.during_period(scheduler_name=scheduler_name, executor=executor)
         GPIO.setmode(GPIO.BCM)
+        # GPIO.setwarnings(False)
         GPIO.setup(self.pin, GPIO.IN) 
         GPIO.add_event_detect(self.pin, self.event, callback=lambda pin: callable(), bouncetime=150)
 
     def unschedule(self, schedule_name: str):
         GPIO.setmode(GPIO.BCM)
+        # GPIO.setwarnings(False)
         GPIO.remove_event_detect(self.pin)
