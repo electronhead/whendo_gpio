@@ -8,6 +8,7 @@ except:
 
 import logging
 from whendo.core.action import Action
+from whendo.core.util import Rez
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +24,15 @@ class SetPin(Action):
     def description(self):
         return f"This action sets pin ({self.pin}) state to ({'GPIO.HIGH' if self.on else 'GPIO.LOW'})."
 
-    def execute(self, tag: str = None, data: dict = None):
-        on = self.on
+    def execute(self, tag: str = None, rez: Rez = None):
+        flds = self.compute_flds(rez=rez)
+        pin = flds["pin"]
+        on = flds["on"]
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        GPIO.setup(self.pin, GPIO.OUT)
-        GPIO.output(self.pin, GPIO.HIGH if on else GPIO.LOW)
-        return self.action_result(result=on, data=data)
+        GPIO.setup(pin, GPIO.OUT)
+        GPIO.output(pin, GPIO.HIGH if on else GPIO.LOW)
+        return self.action_result(result=on, rez=rez, flds=rez.flds if rez else {})
 
 
 class PinState(Action):
@@ -43,11 +46,15 @@ class PinState(Action):
     def description(self):
         return f"This action returns True if the pin state is HIGH, False if LOW."
 
-    def execute(self, tag: str = None, data: dict = None):
+    def execute(self, tag: str = None, rez: Rez = None):
+        flds = self.compute_flds(rez=rez)
+        pin = flds["pin"]
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        # GPIO.setup(self.pin, GPIO.IN)
-        return self.action_result(result=GPIO.input(self.pin) == GPIO.HIGH, data=data)
+        #GPIO.setup(self.pin, GPIO.IN)
+        return self.action_result(
+            result=GPIO.input(pin) == GPIO.HIGH, rez=rez, flds=rez.flds if rez else {}
+        )
 
 
 class TogglePin(Action):
@@ -62,13 +69,17 @@ class TogglePin(Action):
     def description(self):
         return f"This action sets pin ({self.pin}) state to GPIO.HIGH if LOW, to GPIO.LOW if HIGH. Returns True if final state is HIGH, False if final state is LOW."
 
-    def execute(self, tag: str = None, data: dict = None):
+    def execute(self, tag: str = None, rez: Rez = None):
+        flds = self.compute_flds(rez=rez)
+        pin = flds["pin"]
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        GPIO.setup(self.pin, GPIO.OUT)
-        state = not GPIO.input(self.pin)
-        GPIO.output(self.pin, state)
-        return self.action_result(result=state == GPIO.HIGH, data=data)
+        GPIO.setup(pin, GPIO.OUT)
+        state = not GPIO.input(pin)
+        GPIO.output(pin, state)
+        return self.action_result(
+            result=state == GPIO.HIGH, rez=rez, flds=rez.flds if rez else {}
+        )
 
 
 class CleanupPins(Action):
@@ -81,6 +92,6 @@ class CleanupPins(Action):
     def description(self):
         return f"This action executes GPIO.cleanup."
 
-    def execute(self, tag: str = None, data: dict = None):
+    def execute(self, tag: str = None, rez: Rez = None):
         GPIO.cleanup()
-        return self.action_result(result=True, data=data)
+        return self.action_result(result=True, rez=rez, flds=rez.flds if rez else {})

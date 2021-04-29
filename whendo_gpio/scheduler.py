@@ -15,6 +15,7 @@ class PinScheduler(ThresholdScheduler):
     """
     Detects a change to pin in one direction or both directions.
     """
+
     pin: int  # synonymous with 'channel'
     event: int  # GPIO.FALLING, GPIO.RISING, GPIO.BOTH
 
@@ -25,8 +26,10 @@ class PinScheduler(ThresholdScheduler):
         callable = self.during_period(scheduler_name=scheduler_name, executor=executor)
         GPIO.setmode(GPIO.BCM)
         # GPIO.setwarnings(False)
-        GPIO.setup(self.pin, GPIO.IN) 
-        GPIO.add_event_detect(self.pin, self.event, callback=lambda pin: callable(), bouncetime=150)
+        GPIO.setup(self.pin, GPIO.IN)
+        GPIO.add_event_detect(
+            self.pin, self.event, callback=lambda pin: callable(), bouncetime=150
+        )
 
     def unschedule(self, schedule_name: str):
         GPIO.setmode(GPIO.BCM)
