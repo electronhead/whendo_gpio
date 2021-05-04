@@ -51,7 +51,7 @@ class PinState(Action):
         pin = flds["pin"]
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        #GPIO.setup(self.pin, GPIO.IN)
+        GPIO.setup(self.pin, GPIO.IN)
         return self.action_result(
             result=GPIO.input(pin) == GPIO.HIGH, rez=rez, flds=rez.flds if rez else {}
         )
