@@ -7,6 +7,7 @@ except:
     import Mock.GPIO as GPIO
 
 import logging
+from typing import Optional
 from whendo.core.action import Action
 from whendo.core.util import Rez
 
@@ -42,16 +43,19 @@ class PinState(Action):
 
     pin_state: str = "pin_state"  # for Action deserialization
     pin: int
+    setup: Optional[bool] = True
 
     def description(self):
-        return f"This action returns True if the pin state is HIGH, False if LOW."
+        return f"This action returns True if the pin state is HIGH, False if LOW,{' ' if self.setup else ' not '}running GPIO.setup."
 
     def execute(self, tag: str = None, rez: Rez = None):
         flds = self.compute_flds(rez=rez)
         pin = flds["pin"]
+        setup = flds["setup"]
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        GPIO.setup(self.pin, GPIO.IN)
+        if setup:
+            GPIO.setup(self.pin, GPIO.IN)
         return self.action_result(
             result=GPIO.input(pin) == GPIO.HIGH, rez=rez, flds=rez.flds if rez else {}
         )
